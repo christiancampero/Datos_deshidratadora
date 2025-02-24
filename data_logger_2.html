@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Envío de datos a ThingSpeak</title>
+    <style>
+        body {
+            font-family: sans-serif;
+        }
+        label {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <h1>Datos</h1>
+    <p>Temperatura interna: <span id="temp_int">0</span>°C</p>
+    <p>Temperatura ambiente: <span id="temp_amb">0</span>°C</p>
+    <p>Humedad: <span id="hum">0</span>%</p>
+
+    <h2>Rangos</h2>
+    <label for="temp_int_min">Temperatura interna (min):</label>
+    <input type="number" id="temp_int_min" value="20">
+    <label for="temp_int_max">Temperatura interna (max):</label>
+    <input type="number" id="temp_int_max" value="30"><br><br>
+
+    <label for="temp_amb_min">Temperatura ambiente (min):</label>
+    <input type="number" id="temp_amb_min" value="25">
+    <label for="temp_amb_max">Temperatura ambiente (max):</label>
+    <input type="number" id="temp_amb_max" value="35"><br><br>
+
+    <label for="hum_min">Humedad (min):</label>
+    <input type="number" id="hum_min" value="40">
+    <label for="hum_max">Humedad (max):</label>
+    <input type="number" id="hum_max" value="60"><br><br>
+
+    <button onclick="enviarDatos()">Enviar datos</button>
+
+    <script>
+        const API_KEY = "TU_API_KEY_DE_THINGSPEAK"; // Reemplaza con tu API Key
+        const CHANNEL_ID = "ID_DE_TU_CANAL_THINGSPEAK"; // Reemplaza con el ID de tu canal
+
+        function generarDatos() {
+            const temp_int_min = parseFloat(document.getElementById("temp_int_min").value);
+            const temp_int_max = parseFloat(document.getElementById("temp_int_max").value);
+            const temp_amb_min = parseFloat(document.getElementById("temp_amb_min").value);
+            const temp_amb_max = parseFloat(document.getElementById("temp_amb_max").value);
+            const hum_min = parseFloat(document.getElementById("hum_min").value);
+            const hum_max = parseFloat(document.getElementById("hum_max").value);
+
+            const temp_int = (Math.random() * (temp_int_max - temp_int_min) + temp_int_min).toFixed(2);
+            const temp_amb = (Math.random() * (temp_amb_max - temp_amb_min) + temp_amb_min).toFixed(2);
+            const hum = (Math.random() * (hum_max - hum_min) + hum_min).toFixed(2);
+
+            document.getElementById("temp_int").textContent = temp_int;
+            document.getElementById("temp_amb").textContent = temp_amb;
+            document.getElementById("hum").textContent = hum;
+
+            return {
+                "field1": temp_int,
+                "field2": temp_amb,
+                "field3": hum
+            };
+        }
+
+        function enviarDatos() {
+            const datos = generarDatos();
+
+            fetch(`https://api.thingspeak.com/update?api_key=${API_KEY}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(datos)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Datos enviados a ThingSpeak:", data);
+            })
+            .catch(error => {
+                console.error("Error al enviar datos a ThingSpeak:", error);
+            });
+        }
+
+        // Envío inicial de datos al cargar la página
+        enviarDatos();
+
+        // Envío de datos cada 60 segundos (opcional)
+        setInterval(enviarDatos, 60000);
+    </script>
+</body>
+</html>
