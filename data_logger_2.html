@@ -1,91 +1,69 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <title>Envío de datos a ThingSpeak</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Envío a ThingSpeak</title>
     <style>
-        body {
-            font-family: sans-serif;
-        }
-        label {
-            display: block;
-        }
+        body { font-family: Arial, sans-serif; text-align: center; }
+        form { display: flex; flex-direction: column; align-items: center; }
+        label, input { margin: 5px; }
     </style>
 </head>
 <body>
-    <h1>Datos</h1>
-    <p>Temperatura interna: <span id="temp_int">0</span>°C</p>
-    <p>Temperatura ambiente: <span id="temp_amb">0</span>°C</p>
-    <p>Humedad: <span id="hum">0</span>%</p>
-
-    <h2>Rangos</h2>
-    <label for="temp_int_min">Temperatura interna (min):</label>
-    <input type="number" id="temp_int_min" value="20">
-    <label for="temp_int_max">Temperatura interna (max):</label>
-    <input type="number" id="temp_int_max" value="30"><br><br>
-
-    <label for="temp_amb_min">Temperatura ambiente (min):</label>
-    <input type="number" id="temp_amb_min" value="25">
-    <label for="temp_amb_max">Temperatura ambiente (max):</label>
-    <input type="number" id="temp_amb_max" value="35"><br><br>
-
-    <label for="hum_min">Humedad (min):</label>
-    <input type="number" id="hum_min" value="40">
-    <label for="hum_max">Humedad (max):</label>
-    <input type="number" id="hum_max" value="60"><br><br>
-
-    <button onclick="enviarDatos()">Enviar datos</button>
-
+    <h2>Formulario de Datos</h2>
+    <form id="dataForm">
+        <label>Temperatura Interna Mínima: <input type="number" id="tempIntMin"></label>
+        <label>Temperatura Interna Máxima: <input type="number" id="tempIntMax"></label>
+        <label>Temperatura Externa Mínima: <input type="number" id="tempExtMin"></label>
+        <label>Temperatura Externa Máxima: <input type="number" id="tempExtMax"></label>
+        <label>Humedad Interna Mínima: <input type="number" id="humIntMin"></label>
+        <label>Humedad Interna Máxima: <input type="number" id="humIntMax"></label>
+        <label>Humedad Externa Mínima: <input type="number" id="humExtMin"></label>
+        <label>Humedad Externa Máxima: <input type="number" id="humExtMax"></label>
+        <label>Presión Atmosférica Mínima: <input type="number" id="presMin"></label>
+        <label>Presión Atmosférica Máxima: <input type="number" id="presMax"></label>
+        <label>Altitud Mínima: <input type="number" id="altMin"></label>
+        <label>Altitud Máxima: <input type="number" id="altMax"></label>
+        <label>Peso Mínimo: <input type="number" id="pesoMin"></label>
+        <label>Peso Máximo: <input type="number" id="pesoMax"></label>
+        <button type="button" onclick="guardarDatos()">Guardar y Enviar</button>
+    </form>
     <script>
-        const API_KEY = "TU_API_KEY_DE_THINGSPEAK"; // Reemplaza con tu API Key
-        const CHANNEL_ID = "ID_DE_TU_CANAL_THINGSPEAK"; // Reemplaza con el ID de tu canal
-
-        function generarDatos() {
-            const temp_int_min = parseFloat(document.getElementById("temp_int_min").value);
-            const temp_int_max = parseFloat(document.getElementById("temp_int_max").value);
-            const temp_amb_min = parseFloat(document.getElementById("temp_amb_min").value);
-            const temp_amb_max = parseFloat(document.getElementById("temp_amb_max").value);
-            const hum_min = parseFloat(document.getElementById("hum_min").value);
-            const hum_max = parseFloat(document.getElementById("hum_max").value);
-
-            const temp_int = (Math.random() * (temp_int_max - temp_int_min) + temp_int_min).toFixed(2);
-            const temp_amb = (Math.random() * (temp_amb_max - temp_amb_min) + temp_amb_min).toFixed(2);
-            const hum = (Math.random() * (hum_max - hum_min) + hum_min).toFixed(2);
-
-            document.getElementById("temp_int").textContent = temp_int;
-            document.getElementById("temp_amb").textContent = temp_amb;
-            document.getElementById("hum").textContent = hum;
-
-            return {
-                "field1": temp_int,
-                "field2": temp_amb,
-                "field3": hum
-            };
+        const API_KEY = 'QXDTKXWVFM9NB5X3';
+        
+        function generarValorAleatorio(min, max) {
+            return (Math.random() * (max - min) + min).toFixed(2);
         }
-
+        
         function enviarDatos() {
-            const datos = generarDatos();
-
-            fetch(`https://api.thingspeak.com/update?api_key=${QXDTKXWVFM9NB5X3}`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(datos)
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log("Datos enviados a ThingSpeak:", data);
-            })
-            .catch(error => {
-                console.error("Error al enviar datos a ThingSpeak:", error);
-            });
+            let Temperatura_Interna = generarValorAleatorio(localStorage.tempIntMin, localStorage.tempIntMax);
+            let Temperatura_ambiente = generarValorAleatorio(localStorage.tempExtMin, localStorage.tempExtMax);
+            let Humedad_interna = generarValorAleatorio(localStorage.humIntMin, localStorage.humIntMax);
+            let Humedad_ambiente = generarValorAleatorio(localStorage.humExtMin, localStorage.humExtMax);
+            let Presion = generarValorAleatorio(localStorage.presMin, localStorage.presMax);
+            let Altitud = generarValorAleatorio(localStorage.altMin, localStorage.altMax);
+            let Peso = generarValorAleatorio(localStorage.pesoMin, localStorage.pesoMax);
+            
+            let url = `https://api.thingspeak.com/update?api_key=${API_KEY}` +
+                `&field1=${Temperatura_Interna}&field2=${Humedad_interna}&field3=${Presion}&field4=${Altitud}` +
+                `&field5=${Peso}&field6=${Temperatura_ambiente}&field7=${Humedad_ambiente}`;
+            
+            fetch(url)
+                .then(response => console.log("Datos enviados: ", response))
+                .catch(error => console.error("Error en el envío", error));
         }
-
-        // Envío inicial de datos al cargar la página
-        enviarDatos();
-
-        // Envío de datos cada 60 segundos (opcional)
-        setInterval(enviarDatos, 60000);
+        
+        function guardarDatos() {
+            let campos = ['tempIntMin', 'tempIntMax', 'tempExtMin', 'tempExtMax', 'humIntMin', 'humIntMax', 
+                          'humExtMin', 'humExtMax', 'presMin', 'presMax', 'altMin', 'altMax', 'pesoMin', 'pesoMax'];
+            
+            campos.forEach(campo => {
+                localStorage.setItem(campo, document.getElementById(campo).value);
+            });
+            alert("Datos guardados y enviados cada 10 segundos");
+            setInterval(enviarDatos, 10000);
+        }
     </script>
 </body>
 </html>
