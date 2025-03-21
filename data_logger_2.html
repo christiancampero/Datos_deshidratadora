@@ -33,7 +33,7 @@
         const API_KEY = 'QXDTKXWVFM9NB5X3';
         
         function generarValorAleatorio(min, max) {
-            return (Math.random() * ((max - min + 1) + min));
+            return Math.random() * ((max - min) + min);
         }
         
         function enviarDatos() {
@@ -61,8 +61,8 @@
             campos.forEach(campo => {
                 localStorage.setItem(campo, document.getElementById(campo).value);
             });
-            alert("Datos guardados y enviados cada 10 segundos");
-            setInterval(enviarDatos, 10000);
+            alert("Datos guardados y enviados cada 8 segundos");
+            setInterval(enviarDatos, 8000);
         }
     </script>
 </body>
