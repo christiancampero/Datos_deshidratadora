@@ -33,7 +33,7 @@
         const API_KEY = 'QXDTKXWVFM9NB5X3';
         
         function generarValorAleatorio(min, max) {
-            return ((max - min) + min);
+            return (Math.random() * ((max - min + 1) + min));
         }
         
         function enviarDatos() {
