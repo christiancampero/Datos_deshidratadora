@@ -29,59 +29,75 @@
         <label>Peso Máximo: <input type="number" id="pesoMax"></label>
         <button type="button" onclick="guardarDatos()">Guardar y Enviar</button>
     </form>
+
     <script>
         const API_KEY = 'QXDTKXWVFM9NB5X3';
-        
-        //function generarValorAleatorio(min, max) {
-            //return Math.random() * ((max - min) + min);
-        //}
-		
-		function generarValorAleatorio(min, max) {
-			let valor_random = (Math.random() * (max - min));
-			console.log(valor_random);
-			let nuevo_valor = valor_random + min;
-			console.log(valor_random);
-            return nuevo_valor;
+        let intervaloActivo = false;
+
+        function generarValorAleatorio(min, max) {
+            min = parseFloat(min);
+            max = parseFloat(max);
+            if (isNaN(min) || isNaN(max) || min >= max) {
+                console.warn(`Rango inválido: min=${min}, max=${max}`);
+                return 0;
+            }
+            return Math.random() * (max - min) + min;
         }
-        
+
         function enviarDatos() {
-            let Temperatura_Interna = generarValorAleatorio(localStorage.tempIntMin, localStorage.tempIntMax);
-            let Temperatura_ambiente = generarValorAleatorio(localStorage.tempExtMin, localStorage.tempExtMax);
-            let Humedad_interna = generarValorAleatorio(localStorage.humIntMin, localStorage.humIntMax);
-            let Humedad_ambiente = generarValorAleatorio(localStorage.humExtMin, localStorage.humExtMax);
-            let Presion = generarValorAleatorio(localStorage.presMin, localStorage.presMax);
-            let Altitud = generarValorAleatorio(localStorage.altMin, localStorage.altMax);
-            let Peso = generarValorAleatorio(localStorage.pesoMin, localStorage.pesoMax);
-            
-            let url = `https://api.thingspeak.com/update?api_key=${API_KEY}` +
-                `&field1=${Temperatura_Interna}&field2=${Humedad_interna}&field3=${Presion}&field4=${Altitud}` +
-                `&field5=${Peso}&field6=${Temperatura_ambiente}&field7=${Humedad_ambiente}`;
-            
+            const Temperatura_Interna = generarValorAleatorio(localStorage.tempIntMin, localStorage.tempIntMax);
+            const Temperatura_ambiente = generarValorAleatorio(localStorage.tempExtMin, localStorage.tempExtMax);
+            const Humedad_interna = generarValorAleatorio(localStorage.humIntMin, localStorage.humIntMax);
+            const Humedad_ambiente = generarValorAleatorio(localStorage.humExtMin, localStorage.humExtMax);
+            const Presion = generarValorAleatorio(localStorage.presMin, localStorage.presMax);
+            const Altitud = generarValorAleatorio(localStorage.altMin, localStorage.altMax);
+            const Peso = generarValorAleatorio(localStorage.pesoMin, localStorage.pesoMax);
+
+            const url = `https://api.thingspeak.com/update?api_key=${API_KEY}` +
+                        `&field1=${Temperatura_Interna.toFixed(2)}` +
+                        `&field2=${Humedad_interna.toFixed(2)}` +
+                        `&field3=${Presion.toFixed(2)}` +
+                        `&field4=${Altitud.toFixed(2)}` +
+                        `&field5=${Peso.toFixed(2)}` +
+                        `&field6=${Temperatura_ambiente.toFixed(2)}` +
+                        `&field7=${Humedad_ambiente.toFixed(2)}`;
+
             fetch(url)
                 .then(response => console.log("Datos enviados: ", response))
                 .catch(error => console.error("Error en el envío", error));
-				
-			console.log("Verificación de datos: ")
-			console.log(Temperatura_Interna)
-			console.log(Temperatura_ambiente)
-			console.log(Humedad_interna)
-			console.log(Humedad_ambiente)
-			console.log(Presion)
-			console.log(Altitud)
-			console.log(Peso)
-			
-			
-        }
-        
-        function guardarDatos() {
-            let campos = ['tempIntMin', 'tempIntMax', 'tempExtMin', 'tempExtMax', 'humIntMin', 'humIntMax', 
-                          'humExtMin', 'humExtMax', 'presMin', 'presMax', 'altMin', 'altMax', 'pesoMin', 'pesoMax'];
-            
-            campos.forEach(campo => {
-                localStorage.setItem(campo, document.getElementById(campo).value);
+
+            console.log("Valores generados:", {
+                Temperatura_Interna,
+                Temperatura_ambiente,
+                Humedad_interna,
+                Humedad_ambiente,
+                Presion,
+                Altitud,
+                Peso
             });
-            alert("Datos guardados y enviados cada 8 segundos");
-            setInterval(enviarDatos, 8000);
+        }
+
+        function guardarDatos() {
+            const campos = ['tempIntMin', 'tempIntMax', 'tempExtMin', 'tempExtMax',
+                            'humIntMin', 'humIntMax', 'humExtMin', 'humExtMax',
+                            'presMin', 'presMax', 'altMin', 'altMax', 'pesoMin', 'pesoMax'];
+
+            for (const campo of campos) {
+                const valor = document.getElementById(campo).value;
+                if (valor === '') {
+                    alert(`Falta completar el campo: ${campo}`);
+                    return;
+                }
+                localStorage.setItem(campo, valor);
+            }
+
+            if (!intervaloActivo) {
+                enviarDatos(); // Primer envío inmediato
+                setInterval(enviarDatos, 8000); // Envíos cada 8 segundos
+                intervaloActivo = true;
+            }
+
+            alert("Datos guardados. Envío automático cada 8 segundos iniciado.");
         }
     </script>
 </body>
