@@ -37,7 +37,9 @@
         //}
 		
 		function generarValorAleatorio(min, max) {
-            return Math.random() * (max - min) + min;
+			let valor_random = Math.random() * (max - min)
+			let nuevo_valor = valor_random + min
+            return nuevo_valor;
         }
         
         function enviarDatos() {
